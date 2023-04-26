@@ -2,7 +2,6 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <ThingSpeak.h>
-#include <HTTPClient.h>
 
 // define wifi access point here
 #define WIFI_SSID "nakano 2.4G"
@@ -21,7 +20,7 @@ int mic_analog = GPIO_NUM_39;
 int motionState = LOW; // current  state of motion sensor's pin
 float a_val;           // analog value of mic
 int mic_max_temp = 0;
-float max_value;
+float calibrated_a_val;
 
 void calibrate_microphone()
 {
@@ -40,11 +39,11 @@ void calibrate_microphone()
     }
     delay(10);
   }
-  max_value = ((float)mic_max_temp * 100) / 4095;
+  calibrated_a_val = ((float)mic_max_temp * 100) / 4095;
   // Print calibration results
   Serial.println(" ");
   Serial.print("max value: ");
-  Serial.println(max_value);
+  Serial.println(calibrated_a_val);
 }
 
 void httpRequest(int field1Data, float field2Data)
@@ -103,10 +102,9 @@ void setup()
 
 void loop()
 {
-
   int count = 0; // counts numbers of detection
-  float temp = 0;
   double sensitivity_adjust = 0.5;
+  float max_a_val = -1; // initialize max_a_val to a small value
 
   for (int i = 0; i < 60; i++)
   {
@@ -116,38 +114,39 @@ void loop()
     Serial.print(a_val);
     Serial.print(" | ");
     Serial.print("Max noise: ");
-    Serial.println(max_value - sensitivity_adjust);
+    Serial.println(calibrated_a_val - sensitivity_adjust);
+
+    if (a_val > max_a_val) // update max_a_val if a_val is greater
+    {
+      max_a_val = a_val;
+    }
 
     motionState = digitalRead(pir); // read new state
 
-    if ((motionState) && (a_val > max_value - sensitivity_adjust)) // when motion found AND exceeds max noise.
-    {
+    if ((motionState) && (a_val > calibrated_a_val - sensitivity_adjust)) // when motion found AND exceeds max noise.
+    {              
+      count++;
+      Serial.println("***************************************");
       Serial.print("volume: ");
       Serial.println(a_val);
-      count++;
       Serial.print("count: ");
       Serial.println(count);
+      Serial.println("***************************************");
       digitalWrite(led, HIGH);
       delay(1000); // delay a second
       digitalWrite(led, LOW);
+      max_a_val = a_val;
     }
-    else
-    {
-      if (a_val > temp) // when motion is not detected, we keep the highest value for noise.
-      {
-        temp = a_val;
-      }
-      delay(1000); // delay a second
-    }
+    delay(1000); // delay a second
   }
 
   if (count > 0)
   {
-    httpRequest(count, a_val);
+    httpRequest(count, max_a_val);
   }
   else
   {
-    httpRequest(0, temp);
-    Serial.print("No Intruder so far");
+    httpRequest(0, max_a_val);
+    Serial.println("No Intruder so far");
   }
 }
