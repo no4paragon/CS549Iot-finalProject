@@ -5,8 +5,10 @@
 #include <ThingSpeak.h>
 
 // define wifi access point here
-#define WIFI_SSID "nakano 2.4G" // The name of the WiFi access point
-#define WIFI_PASS "19850916" // The password of the WiFi access point
+// #define WIFI_SSID "nakano 2.4G" // The name of the WiFi access point
+// #define WIFI_PASS "19850916" // The password of the WiFi access point
+#define WIFI_SSID "Aatusa" // The name of the WiFi access point
+#define WIFI_PASS "aatusa01"// The password of the WiFi access point
 WiFiClient client; // The client that connects to the WiFi network
 
 // define ThingSpeak keys here
@@ -76,7 +78,7 @@ void setup()
   pinMode(pir, INPUT);         // set ESP32 pin to input mode
   pinMode(led, OUTPUT);        // set ESP32 pin to output mode
 
-  calibrate_microphone(); // calibrate mic
+ 
 
   // We start by connecting to a WiFi network
   Serial.println();
@@ -98,12 +100,14 @@ void setup()
   Serial.println(WiFi.localIP()); // Print local IP address
 
   digitalWrite(led, LOW); // Turn off LED
+
+  calibrate_microphone(); // calibrate mic
 }
 
 void loop()
 {
   int count = 0; // count number of detections
-  double sensitivity_adjust = 0.5; // adjust sensitivity of microphone
+  double sensitivity_adjust = 0.65; // adjust sensitivity of microphone
   float max_a_val = -1; // initialize max_a_val to a small value
 
   // Run loop for 60 iterations (60 seconds)
@@ -115,7 +119,10 @@ void loop()
     Serial.print(a_val);
     Serial.print(" | ");
     Serial.print("Max noise: ");
-    Serial.println(calibrated_a_val - sensitivity_adjust); // print current and max noise levels
+    Serial.print(calibrated_a_val - sensitivity_adjust); // print current and max noise levels
+    Serial.print(" | ");
+    Serial.print("Motion state: ");
+    Serial.println(motionState);
 
     if (a_val > max_a_val) // update max_a_val if a_val is greater
     {
