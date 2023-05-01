@@ -35,7 +35,7 @@ In the Arduino IDE, the following configuration is required:
 
 
 <h2>[Demonstration](https://youtu.be/HtsINyg1M0o)</h2>
-
+<h2>[Visualization](https://thingspeak.com/channels/2115495)</h2>
 
 <img src="https://github.com/no4paragon/CS549Iot-finalProject/blob/main/1.jpg" width="40%" height="40%">
 <img src="https://github.com/no4paragon/CS549Iot-finalProject/blob/main/2.jpg" width="40%" height="40%">
