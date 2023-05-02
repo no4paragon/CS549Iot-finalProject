@@ -5,10 +5,10 @@
 #include <ThingSpeak.h>
 
 // define wifi access point here
-// #define WIFI_SSID "nakano 2.4G" // The name of the WiFi access point
-// #define WIFI_PASS "19850916" // The password of the WiFi access point
-#define WIFI_SSID "Aatusa" // The name of the WiFi access point
-#define WIFI_PASS "aatusa01"// The password of the WiFi access point
+#define WIFI_SSID "nakano 2.4G" // The name of the WiFi access point
+#define WIFI_PASS "19850916" // The password of the WiFi access point
+//#define WIFI_SSID "Aatusa" // The name of the WiFi access point
+//#define WIFI_PASS "aatusa01"// The password of the WiFi access point
 WiFiClient client; // The client that connects to the WiFi network
 
 // define ThingSpeak keys here
@@ -78,8 +78,6 @@ void setup()
   pinMode(pir, INPUT);         // set ESP32 pin to input mode
   pinMode(led, OUTPUT);        // set ESP32 pin to output mode
 
- 
-
   // We start by connecting to a WiFi network
   Serial.println();
   Serial.println();
@@ -107,7 +105,7 @@ void setup()
 void loop()
 {
   int count = 0; // count number of detections
-  double sensitivity_adjust = 0.65; // adjust sensitivity of microphone
+  double sensitivity_adjust = 0.6; // adjust sensitivity of microphone
   float max_a_val = -1; // initialize max_a_val to a small value
 
   // Run loop for 60 iterations (60 seconds)
@@ -150,11 +148,12 @@ void loop()
 
   if (count > 0) // if detections were made
   {
+    Serial.println("Intruder!!");
     httpRequest(count, max_a_val); // send HTTP request with count and max_a_val
   }
   else // if no detections were made
   {
-    httpRequest(0, max_a_val); // send HTTP request with count=0 and max_a_val
     Serial.println("No Intruder so far");
+    httpRequest(0, max_a_val); // send HTTP request with count=0 and max_a_val
   }
 }
